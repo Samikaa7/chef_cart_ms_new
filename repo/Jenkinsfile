@@ -4,7 +4,7 @@
     stages {
         stage('Checkout') {
             steps {
-                git branch: 'main', url: 'https://github.com/<your-username>/chef_cart_ms_new.git'
+                git branch: 'main', url: 'https://github.com/Samikaa7/chef_cart_ms_new.git'
             }
         }
 
