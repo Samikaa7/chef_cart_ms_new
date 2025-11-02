@@ -1,0 +1,21 @@
+﻿pipeline {
+  agent any
+  stages {
+    stage('Checkout') {
+      steps {
+        checkout scm
+      }
+    }
+    stage('Build images') {
+      steps {
+        // Use shell - Jenkins container will run these using host docker socket
+        sh 'docker-compose -f /../docker-compose.yml build --parallel'
+      }
+    }
+    stage('Deploy') {
+      steps {
+        sh 'docker-compose -f /../docker-compose.yml up -d --remove-orphans'
+      }
+    }
+  }
+}
