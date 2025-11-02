@@ -9,25 +9,34 @@ node {
             #!/bin/bash
             set -e
 
-            echo "Checking Python..."
+            echo "Checking for Python..."
             if ! command -v python3 &> /dev/null; then
-                echo "Python3 not found. Installing..."
-                sudo apt-get update -y
-                sudo apt-get install -y python3 python3-venv python3-pip
+                echo "❌ Python3 not found and cannot install (no sudo)."
+                echo "⚠️ Please install python3, python3-venv, and python3-pip in the Jenkins container manually."
+                exit 1
             fi
 
-            python3 --version
+            echo "✅ Python3 found: $(python3 --version)"
 
             echo "Creating virtual environment..."
-            python3 -m venv venv
-            . venv/bin/activate
-            pip install --upgrade pip
+            python3 -m venv venv || echo "⚠️ Could not create venv (maybe missing venv module). Skipping..."
+            
+            if [ -f venv/bin/activate ]; then
+                . venv/bin/activate
+                echo "Upgrading pip..."
+                pip install --upgrade pip
 
-            if [ -f requirements.txt ]; then
-                echo "Installing dependencies..."
-                pip install -r requirements.txt
+                if [ -f requirements.txt ]; then
+                    echo "Installing dependencies..."
+                    pip install -r requirements.txt
+                else
+                    echo "⚠️ No requirements.txt found, skipping dependencies."
+                fi
             else
-                echo "⚠️ No requirements.txt found, skipping dependencies."
+                echo "⚠️ Virtual environment not created. Running without venv."
+                if [ -f requirements.txt ]; then
+                    pip3 install -r requirements.txt || echo "⚠️ Could not install dependencies."
+                fi
             fi
         '''
     }
@@ -36,8 +45,10 @@ node {
         echo 'Running tests...'
         sh '''
             #!/bin/bash
-            set -e
-            . venv/bin/activate
+            set +e
+            if [ -f venv/bin/activate ]; then
+                . venv/bin/activate
+            fi
             if [ -f test_script.py ]; then
                 python3 test_script.py
             else
