@@ -1,6 +1,6 @@
 node {
     stage('Checkout') {
-        git 'https://github.com/Samikaa7/chef_cart_ms_new.git'
+        git branch: 'main', url: 'https://github.com/Samikaa7/chef_cart_ms_new.git'
     }
 
     stage('Build') {
@@ -19,4 +19,3 @@ node {
         sh 'echo "Simulated deploy step - replace with EC2 or Streamlit deployment commands"'
     }
 }
-
