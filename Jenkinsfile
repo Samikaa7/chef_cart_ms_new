@@ -1,30 +1,22 @@
-﻿pipeline {
-    agent any
+node {
+    stage('Checkout') {
+        git 'https://github.com/Samikaa7/chef_cart_ms_new.git'
+    }
 
-    stages {
-        stage('Checkout') {
-            steps {
-                git branch: 'main', url: 'https://github.com/Samikaa7/chef_cart_ms_new.git'
-            }
-        }
+    stage('Build') {
+        echo 'Building the project...'
+        sh 'python3 -m venv venv'
+        sh '. venv/bin/activate && pip install -r requirements.txt || echo "No requirements file found"'
+    }
 
-        stage('Install Dependencies') {
-            steps {
-                sh 'python3 -m venv venv'
-                sh '. venv/bin/activate && pip install -r requirements.txt'
-            }
-        }
+    stage('Test') {
+        echo 'Running tests...'
+        sh '. venv/bin/activate && pytest || echo "No tests found"'
+    }
 
-        stage('Run Tests') {
-            steps {
-                sh '. venv/bin/activate && pytest || echo "No tests found"'
-            }
-        }
-
-        stage('Build Complete') {
-            steps {
-                echo 'Build completed successfully.'
-            }
-        }
+    stage('Deploy') {
+        echo 'Deploying...'
+        sh 'echo "Simulated deploy step - replace with EC2 or Streamlit deployment commands"'
     }
 }
+
